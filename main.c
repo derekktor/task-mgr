@@ -4,12 +4,14 @@
 
 #define S_T 20
 #define S_D 100
+#define S_DATE 10
 
 typedef struct Task
 {
     int priority;
     char title[S_T];
     char desc[S_D];
+    char dueDate[S_DATE];
 } task;
 
 typedef struct Node
@@ -24,11 +26,15 @@ typedef struct Node
 void trim(char t[])
 {
     int idx = 0;
-    while (t[idx] != '\n')
+    while (t[idx] != '\0')
     {
+        if (t[idx] == '\n')
+        {
+            t[idx] = '\0';
+            return;
+        }
         idx++;
     }
-    t[idx] = '\0';
 }
 
 /**
@@ -36,7 +42,7 @@ void trim(char t[])
  */
 void printTask(int i, task t)
 {
-    printf("%d\t%d\t%s\t\t%s\n", i, t.priority, t.title, t.desc);
+    printf("%d\t%d\t%s\t%s\t\t%s\n", i, t.priority, t.dueDate, t.title, t.desc);
 }
 
 /**
@@ -57,6 +63,11 @@ void createTask(node **n)
 
     printf("priority = ");
     scanf("%d", &t.priority);
+    getchar(); // scanf leaves \n in stdin, pick that
+
+    printf("due date (YYYYMMDD) = ");
+    fgets(t.dueDate, S_DATE, stdin);
+    trim(t.dueDate);
 
     node *newNode = malloc(sizeof(node));
 
@@ -70,7 +81,8 @@ void createTask(node **n)
     newNode->next = NULL;
 
     // place at the front
-    if (*n == NULL || t.priority > (*n)->data.priority)
+    if (*n == NULL ||
+        strcmp(t.dueDate, (*n)->data.dueDate) < 0)
     {
         newNode->next = *n;
         *n = newNode;
@@ -80,7 +92,8 @@ void createTask(node **n)
     node *current = *n;
 
     // place at the back
-    while (current->next != NULL && current->next->data.priority >= t.priority)
+    while (current->next != NULL &&
+           strcmp(current->next->data.dueDate, t.dueDate) <= 0)
     {
         current = current->next;
     }
@@ -126,11 +139,18 @@ void saveTasks(node *n)
     printf("--- Saving tasks ----\n");
     FILE *f = fopen("tasks.txt", "w");
 
+    if (f == NULL)
+    {
+        perror("ERR: can't open tasks.txt\n");
+        exit(EXIT_FAILURE);
+    }
+
     while (n != NULL)
     {
         fprintf(f, "%d\n", n->data.priority);
         fprintf(f, "%s\n", n->data.title);
         fprintf(f, "%s\n", n->data.desc);
+        fprintf(f, "%s\n", n->data.dueDate);
         n = n->next;
     }
 
@@ -180,7 +200,15 @@ node *loadTasks()
             break;
         }
 
-        trim(newNode->data.title);
+        trim(newNode->data.desc);
+
+        if (fgets(newNode->data.dueDate, sizeof(newNode->data.dueDate), f) == NULL)
+        {
+            free(newNode);
+            break;
+        }
+
+        trim(newNode->data.dueDate);
 
         newNode->next = NULL;
 
