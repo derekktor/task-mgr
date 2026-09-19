@@ -202,7 +202,7 @@ node *loadTasks()
 
 void showInstructions()
 {
-    printf("q - quit, p - print tasks, c - create task, d - delete task\n");
+    printf("q - quit, p - print tasks, c - create task, d - delete task, e - edit desc, u - update priority\n");
 }
 
 void deleteTask(node **root, int idx)
@@ -244,6 +244,79 @@ void deleteTask(node **root, int idx)
     }
 }
 
+void editDescription(node *root, int idx)
+{
+    int i = 1;
+
+    while (root != NULL)
+    {
+        if (i == idx)
+        {
+            printf("new description: (%s, %s)\n", root->data.title, root->data.desc);
+            fgets(root->data.desc, S_D, stdin);
+            trim(root->data.desc);
+            return;
+        }
+
+        root = root->next;
+        i++;
+    }
+
+    printf("ERR: task index %d not found\n", idx);
+}
+
+void updatePriority(node **root, int idx)
+{
+    int i = 1;
+    node *current = *root;
+    node *prev = NULL;
+
+    // Find task
+    while (current != NULL && i < idx)
+    {
+        prev = current;
+        current = current->next;
+        i++;
+    }
+
+    if (current == NULL)
+    {
+        printf("ERR: task index %d not found\n", idx);
+        return;
+    }
+
+    // Remove current node from list
+    if (prev == NULL)
+        *root = current->next;
+    else
+        prev->next = current->next;
+
+    // Get new priority
+    printf("new priority = ");
+    scanf("%d", &current->data.priority);
+    getchar();
+
+    // Reinsert at correct position
+    if (*root == NULL ||
+        current->data.priority > (*root)->data.priority)
+    {
+        current->next = *root;
+        *root = current;
+        return;
+    }
+
+    node *p = *root;
+
+    while (p->next != NULL &&
+           p->next->data.priority >= current->data.priority)
+    {
+        p = p->next;
+    }
+
+    current->next = p->next;
+    p->next = current;
+}
+
 int main(int argc, char *argv[])
 {
     printf("Tasks:\n");
@@ -261,16 +334,34 @@ int main(int argc, char *argv[])
         {
             createTask(&root);
         }
-        if (res == 'p')
+        else if (res == 'p')
         {
             printTasks(root);
         }
-        if (res == 'd')
+        else if (res == 'd')
         {
             int taskIdx;
             printf("Task idx = ");
             scanf("%d", &taskIdx);
+            getchar();
             deleteTask(&root, taskIdx);
+        }
+        else if (res == 'e')
+        {
+            int taskIdx;
+            printf("Task idx = ");
+            scanf("%d", &taskIdx);
+            getchar();
+            editDescription(root, taskIdx);
+        }
+        else if (res == 'u')
+        {
+            int taskIdx;
+            printf("Task idx = ");
+            scanf("%d", &taskIdx);
+            getchar();
+
+            updatePriority(&root, taskIdx);
         }
     }
 
