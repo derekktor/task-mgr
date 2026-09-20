@@ -5,6 +5,7 @@
 #define S_T 20
 #define S_D 100
 #define S_DATE 10
+#define TASK_PATH "/home/derek/num/task-mgr/tasks.txt"
 
 typedef struct Task
 {
@@ -137,7 +138,7 @@ void printTasks(node *n)
 void saveTasks(node *n)
 {
     printf("--- Saving tasks ----\n");
-    FILE *f = fopen("tasks.txt", "w");
+    FILE *f = fopen(TASK_PATH, "w");
 
     if (f == NULL)
     {
@@ -159,7 +160,7 @@ void saveTasks(node *n)
 
 node *loadTasks()
 {
-    FILE *f = fopen("tasks.txt", "r");
+    FILE *f = fopen(TASK_PATH, "r");
 
     if (f == NULL)
     {
