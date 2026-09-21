@@ -38,3 +38,7 @@ read part3 of os book(Process Management)
 ord
 edit vids
 20260930
+
+
+SE
+migrate from Github to Gitlab

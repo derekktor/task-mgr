@@ -46,6 +46,8 @@ void trim(char t[])
 
 /**
  * Prints task details: priority, title, description
+ *
+ * STATUS - IDX - PR - DATE - TITLE - DESC
  */
 void printTask(int i, task t)
 {
@@ -185,6 +187,8 @@ void saveTasks(node *n)
 
 node *loadTasks()
 {
+    // printf("Loading tasks...\n");
+
     FILE *f = fopen(TASK_PATH, "r");
 
     if (f == NULL)
@@ -198,6 +202,15 @@ node *loadTasks()
 
     while (1)
     {
+        /*
+        Todo structure
+        ---------------
+        priority
+        title
+        desc
+        dueDate
+        status
+        */
         node *newNode = malloc(sizeof(node));
 
         if (newNode == NULL)
@@ -206,36 +219,38 @@ node *loadTasks()
             exit(EXIT_FAILURE);
         }
 
+        // PRIORITY
         if (fscanf(f, "%d\n", &newNode->data.priority) != 1)
         {
             free(newNode);
             break;
         }
 
+        // TITLE
         if (fgets(newNode->data.title, S_T, f) == NULL)
         {
             free(newNode);
             break;
         }
-
         trim(newNode->data.title);
 
+        // DESC
         if (fgets(newNode->data.desc, S_D, f) == NULL)
         {
             free(newNode);
             break;
         }
-
         trim(newNode->data.desc);
 
+        // DUEDATE
         if (fgets(newNode->data.dueDate, sizeof(newNode->data.dueDate), f) == NULL)
         {
             free(newNode);
             break;
         }
-
         trim(newNode->data.dueDate);
 
+        // STATUS
         if (fscanf(f, "%d\n", &newNode->data.status) != 1)
         {
             free(newNode);
@@ -243,6 +258,7 @@ node *loadTasks()
         }
 
         newNode->next = NULL;
+        // printTask(0, newNode->data);
 
         if (root == NULL)
         {
@@ -405,7 +421,7 @@ int main(int argc, char *argv[])
 {
     printf("Tasks:\n");
     node *root = loadTasks();
-    printTasks(root);
+    printAll(root);
 
     char res;
     while (res != 'q')
