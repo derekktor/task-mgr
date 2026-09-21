@@ -484,5 +484,8 @@ int main(int argc, char *argv[])
     saveTasks(root);
     freeList(root);
 
+    // TODO
+    // calling globally is messing with todos.txt
+
     return 0;
 }

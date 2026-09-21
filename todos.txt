@@ -3,8 +3,53 @@ os
 take 2 page notes from chapter 2
 20260920
 1
-3
+5
+sys
+sem1, sem2 on sisi
+20260921
+0
+4
 se
-take notes
+lab02 on teams, claude-made assignment
+20260922
+0
+2
+se
+take cornell notes ESP(2.1-2.4), SEAB(ch3)
+20260922
+0
+5
+os
+build cli simulation
+20260923
+0
+5
+alg
+skiena(even(1-42)), clrs(1.1, 2.1-2.3, 3.1-3.6)
+20260925
+0
+1
+color
+improve 5
 20260930
+0
+1
+os
+read part3 of os book(Process Management)
+20260930
+0
+1
+ord
+edit vids
+20260930
+0
+1
+SE
+migrate from Github to Gitlab
+20260930
+0
+3
+sys
+bit_ops.tar on teams
+20261001
 0
