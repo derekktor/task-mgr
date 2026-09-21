@@ -5,14 +5,20 @@
 #define S_T 20
 #define S_D 100
 #define S_DATE 10
-#define TASK_PATH "/home/derek/num/task-mgr/tasks.txt"
+#define TASK_PATH "/home/derek/num/todos-mgr/todos.txt"
 
+/*
+status:
+    0 - not done
+    1 - done
+*/
 typedef struct Task
 {
     int priority;
     char title[S_T];
     char desc[S_D];
     char dueDate[S_DATE];
+    int status;
 } task;
 
 typedef struct Node
@@ -43,7 +49,7 @@ void trim(char t[])
  */
 void printTask(int i, task t)
 {
-    printf("%d\t%d\t%s\t%s\t\t%s\n", i, t.priority, t.dueDate, t.title, t.desc);
+    printf("%d) %d\t%d\t%s\t%s\t\t%s\n", t.status, i, t.priority, t.dueDate, t.title, t.desc);
 }
 
 /**
@@ -69,6 +75,8 @@ void createTask(node **n)
     printf("due date (YYYYMMDD) = ");
     fgets(t.dueDate, S_DATE, stdin);
     trim(t.dueDate);
+
+    t.status = 0;
 
     node *newNode = malloc(sizeof(node));
 
@@ -125,6 +133,22 @@ void printTasks(node *n)
     int counter = 1;
     while (n != NULL)
     {
+        if (n->data.status == 0)
+        {
+            printTask(counter, n->data);
+        }
+        n = n->next;
+        counter++;
+    }
+    printf("-------------\n");
+}
+
+void printAll(node *n)
+{
+    printf("--- TASKS ---\n");
+    int counter = 1;
+    while (n != NULL)
+    {
         printTask(counter, n->data);
         n = n->next;
         counter++;
@@ -133,7 +157,7 @@ void printTasks(node *n)
 }
 
 /**
- * Saves current list of tasks to tasks.txt file
+ * Saves current list of tasks to todos.txt file
  */
 void saveTasks(node *n)
 {
@@ -142,7 +166,7 @@ void saveTasks(node *n)
 
     if (f == NULL)
     {
-        perror("ERR: can't open tasks.txt\n");
+        perror("ERR: can't open todos.txt\n");
         exit(EXIT_FAILURE);
     }
 
@@ -152,6 +176,7 @@ void saveTasks(node *n)
         fprintf(f, "%s\n", n->data.title);
         fprintf(f, "%s\n", n->data.desc);
         fprintf(f, "%s\n", n->data.dueDate);
+        fprintf(f, "%d\n", n->data.status);
         n = n->next;
     }
 
@@ -211,6 +236,12 @@ node *loadTasks()
 
         trim(newNode->data.dueDate);
 
+        if (fscanf(f, "%d\n", &newNode->data.status) != 1)
+        {
+            free(newNode);
+            break;
+        }
+
         newNode->next = NULL;
 
         if (root == NULL)
@@ -231,7 +262,7 @@ node *loadTasks()
 
 void showInstructions()
 {
-    printf("q - quit, p - print tasks, c - create task, d - delete task, e - edit desc, u - update priority\n");
+    printf("q - quit, p - print, P - print all, c - create task, d - delete task, e - edit desc, u - update priority, m - mark as done\n");
 }
 
 void deleteTask(node **root, int idx)
@@ -284,6 +315,30 @@ void editDescription(node *root, int idx)
             printf("new description: (%s, %s)\n", root->data.title, root->data.desc);
             fgets(root->data.desc, S_D, stdin);
             trim(root->data.desc);
+            return;
+        }
+
+        root = root->next;
+        i++;
+    }
+
+    printf("ERR: task index %d not found\n", idx);
+}
+
+void markAsDone(node *root, int idx)
+{
+    int i = 1;
+
+    while (root != NULL)
+    {
+        if (i == idx)
+        {
+            root->data.status = 1;
+            /*
+            printf("new description: (%s, %s)\n", root->data.title, root->data.desc);
+            fgets(root->data.desc, S_D, stdin);
+            trim(root->data.desc);
+            */
             return;
         }
 
@@ -367,6 +422,10 @@ int main(int argc, char *argv[])
         {
             printTasks(root);
         }
+        else if (res == 'P')
+        {
+            printAll(root);
+        }
         else if (res == 'd')
         {
             int taskIdx;
@@ -391,6 +450,18 @@ int main(int argc, char *argv[])
             getchar();
 
             updatePriority(&root, taskIdx);
+        }
+        else if (res == 'm')
+        {
+            int taskIdx;
+            printf("Task idx = ");
+            scanf("%d", &taskIdx);
+            getchar();
+            markAsDone(root, taskIdx);
+        }
+        else
+        {
+            printf("Wrong key!\n");
         }
     }
 
